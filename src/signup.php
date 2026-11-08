@@ -5,7 +5,7 @@
     $id = $_POST['idnumber'];
     $mobile_number = $_POST['Mphone'];
     $email = $_POST['E-mail'];
-    $password = MD5($_POST['pswd']);
+    $password = md5($_POST['pswd']);
 
 
 
