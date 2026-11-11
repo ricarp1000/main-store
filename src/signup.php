@@ -1,4 +1,7 @@
 <?php
+// Get Database connection
+include('../settings/database.php');
+
 // Get payload from frontend
     $first_name = $_POST['Fname'];
     $last_name = $_POST['Lname'];
@@ -7,12 +10,29 @@
     $email = $_POST['E-mail'];
     $password = md5($_POST['pswd']);
 
+    // prepare query
+$sql = "
+    INSERT INTO 
+    users (firstname, lastname, ident_number, email, password) 
+    VALUES (
+        '$first_name',
+        '$last_name',
+        '$id',
+        '$email',
+        '$password'
+    );
+";
+
+// Execute query
+
+$res = pg_query($local_conn, $sql);
+
+if ($res) {
+    echo "User registered successfully";
+} else {
+    echo "Error: User has not been created registering user: " 
+    ;
+}
 
 
 
-echo  "<br>". $first_name; 
-echo  "<br>". $last_name ;
-echo  "<br>". $id  ;
-echo  "<br>". $mobile_number  ;
-echo  "<br>". $email ;
-echo  "<br>". $password  ;
