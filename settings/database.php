@@ -41,12 +41,12 @@ http://localhost/main-store/settings/database.php
     if (!$local_conn) {
         die("Error local connection");
     }else {
-        echo "Successful database local connection !!! ";
+       // echo "Successful database local connection !!! ";
     }
 
        if (!$supa_conn) {
         die("Error supa connection");
     }else {
-        echo "<br>Successful database supa connection !!! ";
+       // echo "<br>Successful database supa connection !!! ";
     }
 ?>
