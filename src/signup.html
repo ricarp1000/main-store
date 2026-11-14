@@ -6,22 +6,43 @@
         <title>Main Store - Register User</title>
         <link rel="icon" type="image/png" href="icons/logo_icon.png">
     </head>
-    <body>
-        <h3>Register User</h3>
-        <form name="register_form" id="register_form" action="signup.php" method="POST"> 
-            <label >First Name:</label><br>
-            <input type="text" name="Fname" required name="first_name" id="first_name" placeholder="Enter your first name"><br><br>
-            <label >Last Name:</label><br>
-            <input type="text" name="Lname" required name="last_name" id="last_name" placeholder="Enter your last name"><br><br>
-            <label >ID:</label><br>
-            <input type="number" name="idnumber" required name="id" id="id" placeholder="Enter your ID"><br><br>
-            <label >Mobile Number:</label><br>
-            <input type="number" name="Mphone" required name="mobile_number" id="mobile_number" placeholder="Enter your mobile number"><br><br>
-            <label >email:</label><br>
-            <input type="email" name="email" required name="email" id="email" placeholder="E-mail@gmail.com" ><br><br>
-            <label >Password:</label><br>
-            <input type="password" name="pswd" required name="password" id="password" placeholder="Enter your password"><br><br>
-            <button type="submit" id="register_button">Register</button>
-        </form>
-    </body>
+<body>
+
+    <form name="register-form" action="signup.php" method="post">
+        <h3>Registro de Usuario</h3>
+        
+        <div class="input-group">
+            <label>Nombres</label>
+            <input type="text" name="fname" required>
+        </div>
+        
+        <div class="input-group">
+            <label>Apellidos</label>
+            <input type="text" name="lname" required>
+        </div>
+        
+        <div class="input-group">
+            <label>Número de identificación</label>
+            <input type="text" name="idnumber" required>
+        </div>
+        
+        <div class="input-group">
+            <label>Teléfono (+57)</label>
+            <input type="tel" name="mphone" required>
+        </div>
+        
+        <div class="input-group">
+            <label>Correo electrónico</label>
+            <input type="email" name="email" required>
+        </div>
+        
+        <div class="input-group">
+            <label>Contraseña</label>
+            <input type="password" name="passw" required>
+        </div>
+        
+        <button type="submit">Registrarse</button>
+    </form>
+
+</body>
 </html>
