@@ -8,6 +8,7 @@ $identification_number = $_POST['idnumber'];
 $mobile_phone = $_POST['mphone'];
 $email = $_POST['email'];
 $password = md5($_POST['passw']);
+$PHOTO_URL = 'images/photo_default.png';
 
 $sql = "
 INSERT INTO users
@@ -17,7 +18,8 @@ INSERT INTO users
     ident_number,
     mobile_phone,
     email,
-    password
+    password,
+    url_photo
 )
 VALUES
 (
@@ -26,7 +28,8 @@ VALUES
     '$identification_number',
     '$mobile_phone',
     '$email',
-    '$password'
+    '$password',
+    '$PHOTO_URL'
 )";
 
 $result = pg_query($local_conn, $sql);
