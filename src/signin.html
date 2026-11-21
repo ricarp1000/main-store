@@ -1,39 +1,29 @@
-
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign in</title>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Document</title>
+
 </head>
 
 <body>
 
-    <center>
+ <h3>Login User</h3>
 
-        <form name="register-form" action="signin.php" method="post">
+    <form name="login-form" action="signin.php" method="post">   
+        <label>E-mail:</label><br>
+        <input type="email" name="email" placeholder="Correo Electrónico" required><br><br>
 
-            <h3>Sign in</h3>
+        <label>Password:</label><br>
+        <input type="password" name="pswd" placeholder="Contraseña" required><br><br>
 
-            <br>
-
-            <label>Email:</label>
-            <br>
-            <input type="email" name="email" placeholder="Email.com" required>
-
-            <br><br>
-
-            <label>Contraseña:</label>
-            <br>
-            <input type="password" name="password" placeholder="********" required>
-
-            <br><br>
-
-            <button type="submit">Login</button>
-
-        </form>
-
-    </center>
-
+        <button >Login</button>
+    </form>
 </body>
 </html>
