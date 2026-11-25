@@ -38,15 +38,12 @@ http://localhost/main-store/settings/database.php
     ");
 
 
-    if (!$local_conn) {
+      if (!$local_conn) {
         die("Error local connection");
-    }else {
-       // echo "Successful database local connection !!! ";
     }
 
-       if (!$supa_conn) {
-        die("Error supa connection");
-    }else {
-       // echo "<br>Successful database supa connection !!! ";
+    // Supabase es opcional: si falla, se sigue guardando en local
+    if (!$supa_conn) {
+        error_log("Error supa connection");
     }
 ?>

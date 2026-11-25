@@ -1,99 +1,92 @@
 <?php
-
 session_start();
-if(!isset($_SESSION['user_id'])){
-    header('refresh:0;url=signin.html');
-}else{
-   header('refresh:0;url=home.php'); 
+
+// Si ya inició sesión, no necesita registrarse
+if (isset($_SESSION['user_id'])) {
+    header('Location: home.php');
+    exit();
 }
 
-// get database conecction 
+// Solo aceptar datos enviados desde el formulario
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Location: signup.html');
+    exit();
+}
+
+// get database connection
 include('../settings/database.php');
 
-//get payload from fronted
-    $first_name = $_POST['fname'];
-    $last_name = $_POST['lname'];
-    $ident_number =  $_POST['idnumber'];
-    $mobile_phone = $_POST['mphone'];
-    $e_mail = $_POST['email'];
-    //MD5 metodo de encriptacion 
-    $password = MD5($_POST['pswd']);
-    $PHOTO_URL = 'photos/photo_default.png';
+// get payload from frontend
+$first_name   = $_POST['fname'];
+$last_name    = $_POST['lname'];
+$ident_number = $_POST['idnumber'];
+$mobile_phone = $_POST['mphone'];
+$e_mail       = $_POST['email'];
+$password     = password_hash($_POST['pswd'], PASSWORD_DEFAULT);
+$photo_url    = 'photos/photo_default.png';
 
+/**
+ * Crea el usuario en la conexión indicada.
+ * Devuelve: 'created', 'exists' o un texto con el error de PostgreSQL.
+ */
+function create_user($conn, $values) {
+    $email = pg_escape_literal($conn, $values['email']);
 
-$sql_check_email = "SELECT * FROM users WHERE email = '$e_mail' "; 
-$res = pg_query($local_conn, $sql_check_email);
-$total = pg_num_rows($res);
-
-// input date in supabase
-$res_sb = pg_query($supa_conn, $sql_check_email);
-$total_sb = pg_num_rows($res_sb);
-
-
-if($total < 1){
-
-    //prepare query
-    $sql = "
-        INSERT INTO 
-        users(firstname, lastname, ident_number, mobile_phone, email, password,  url_photo ) 
-        values(
-            '$first_name' ,
-            '$last_name', 
-            '$ident_number',
-            '$mobile_phone',
-            '$e_mail',
-            '$password',
-            '$PHOTO_URL'      
-        ) ;
-    ";
-
-    //Execute query 
-    $res = pg_query($local_conn, $sql);
-
-    if ($res){
-        echo "<script>alert('user has been created successfully !!!') </script>";
-        header('refresh:0;url=signin.html');
-    } 
-    else{
-        echo"<br>Error: user hasn't been created";
+    $check = pg_query($conn, "SELECT 1 FROM users WHERE email = $email");
+    if ($check === false) {
+        return 'error: ' . pg_last_error($conn);
     }
-} else{
-    echo "<script>alert('User has email already exist. Try again !!!')</script>";
-    header('refresh:0;url=signup.html');
-}    
-
-
-
-// input date in supabase
-if($total_sb < 1){
-
-    //prepare query
-    $sql = "
-        INSERT INTO 
-        users(firstname, lastname, ident_number, mobile_phone, email, password, url_photo) 
-        values(
-            '$first_name' ,
-            '$last_name', 
-            '$ident_number',
-            '$mobile_phone',
-            '$e_mail',
-            '$password',
-            '$PHOTO_URL'
-            
-        ) ;
-    ";
-
-    //Execute query 
-    $res_sb = pg_query($supa_conn, $sql);
-
-    if ($res_sb){
-        echo "<script>alert('user has been created successfully in supabase !!!') </script>";
-        //header('refresh:0;url=signin.html');
-    } 
-    else{
-        echo"<br>Error: user hasn't been created";
+    if (pg_num_rows($check) > 0) {
+        return 'exists';
     }
-} else{
-    echo "<script>alert('User has email already exist in supabase. Try again !!!')</script>";
-    //header('refresh:0;url=signup.html');
-}    
+
+    $escaped = array();
+    foreach ($values as $v) {
+        $escaped[] = pg_escape_literal($conn, $v);
+    }
+
+    $sql = "INSERT INTO users(firstname, lastname, ident_number, mobile_phone, email, password, url_photo)
+            VALUES (" . implode(', ', $escaped) . ")";
+
+    if (pg_query($conn, $sql) === false) {
+        return 'error: ' . pg_last_error($conn);
+    }
+    return 'created';
+}
+
+function label($result, $where) {
+    if ($result === 'created') return "User created in $where.";
+    if ($result === 'exists')  return "Email already exists in $where.";
+    return "Error in $where -> " . $result;
+}
+
+// El orden debe coincidir con las columnas del INSERT
+$user = array(
+    'firstname'    => $first_name,
+    'lastname'     => $last_name,
+    'ident_number' => $ident_number,
+    'mobile_phone' => $mobile_phone,
+    'email'        => $e_mail,
+    'password'     => $password,
+    'url_photo'    => $photo_url
+);
+
+$local_result = create_user($local_conn, $user);
+$supa_result  = $supa_conn ? create_user($supa_conn, $user) : 'error: no connection';
+
+$message  = label($local_result, 'local') . "\n" . label($supa_result, 'supabase');
+$redirect = ($local_result === 'created') ? 'signin.html' : 'signup.html';
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Main Store - Sign up</title>
+</head>
+<body>
+<script>
+    alert(<?= json_encode($message, JSON_HEX_TAG | JSON_HEX_AMP) ?>);
+    window.location.href = <?= json_encode($redirect) ?>;
+</script>
+</body>
+</html>

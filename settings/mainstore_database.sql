@@ -13,6 +13,10 @@ CREATE TABLE users (
     created_at    TIMESTAMPTZ   NOT NULL DEFAULT NOW(),
     updated_at    TIMESTAMPTZ   NOT NULL DEFAULT NOW(),
     deleted_at    TIMESTAMPTZ
+    ALTER TABLE users ADD COLUMN role VARCHAR(20) NOT NULL DEFAULT 'user';
+
+-- Convierte a tu usuario en administrador
+UPDATE users SET role = 'admin' WHERE email = 'tu_correo@ejemplo.com';
 );
 
 --Select all users from the users table

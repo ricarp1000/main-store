@@ -1,57 +1,71 @@
 <?php
+session_start();
+
+// Si ya inició sesión, ir al home
+if (isset($_SESSION['user_id'])) {
+    header('Location: home.php');
+    exit();
+}
+
+// Solo aceptar datos enviados desde el formulario
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Location: signin.html');
+    exit();
+}
+
 include "../settings/database.php";
 
-session_start();
-if(!isset($_SESSION['user_id'])){
-    header('refresh:0;url=signin.html');
-}else{
-   header('refresh:0;url=home.php'); 
+$email    = $_POST['email'];
+$password = $_POST['pswd'];
+
+/**
+ * Busca el usuario por email y verifica la contraseña con password_verify.
+ * Devuelve el usuario (array) o null.
+ */
+function find_user($conn, $email, $password) {
+    if (!$conn) return null;
+
+    $res = pg_query_params(
+        $conn,
+        "SELECT id, firstname, lastname, email, password FROM users WHERE email = $1",
+        array($email)
+    );
+
+    if ($res === false || pg_num_rows($res) < 1) return null;
+
+    $row = pg_fetch_assoc($res);
+
+    if (password_verify($password, $row['password'])) {
+        return $row;
+    }
+    return null;
 }
 
-
-$email = $_POST['email'];
-$password = MD5($_POST['pswd']);
-
-$sql_check_email = "
-    SELECT 
-        id,
-        firstname,
-        lastname,
-        email 
-    FROM 
-        users
-    WHERE 
-        email = '$email' and
-        password = '$password'
-";
-
-// in local
-$res = pg_query($local_conn, $sql_check_email);
-$total = pg_num_rows($res);
-$row = pg_fetch_assoc($res);
-
-//verify in supabase 
-$res_sb = pg_query($supa_conn, $sql_check_email);
-$total_sb = pg_num_rows($res_sb);
-
-// in local
-if($total>0){
-    $_SESSION['user_id'] = $row['id'];
-    header('refresh:0;url=home.php');
-}else{
-     echo "<script>alert('User email does not  exist. Try again !!!')</script>";
-     header('refresh:0;url=signin.html');
+// 1) Buscar primero en local, 2) si no está, probar en Supabase
+$user = find_user($local_conn, $email, $password);
+if (!$user) {
+    $user = find_user($supa_conn, $email, $password);
 }
 
-
-// supabase
-if($total_sb > 0){
-    //header('refresh:0;url=home.php');
-}else{
-    echo "<script>alert('User email does not exist in supabase. Try again !!!')</script>";   
+if ($user) {
+    session_regenerate_id(true);
+    $_SESSION['user_id'] = $user['id'];
+    header('Location: home.php');
+    exit();
 }
-    
 
-
-
-
+// Credenciales incorrectas
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Main Store - Sign in</title>
+</head>
+<body>
+<script>
+    alert('Incorrect email or password. Try again !!!');
+    window.location.href = 'signin.html';
+</script>
+</body>
+</html>
